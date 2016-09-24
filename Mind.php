@@ -78,6 +78,11 @@ class Mind
         Mind::$instance = &$this;
     }
 
+    public function reInit()
+    {
+        Mind::$instance = &$this;
+    }
+
     public function connectNeurons()
     {
         for ($layerIndex = 0; $layerIndex < count($this->layers) - 2; $layerIndex++) {
@@ -153,7 +158,7 @@ class Mind
 
         // Update Weights
         // Freaking complex don't touch it
-        for ($layerIndex = $this->topology->hiddenLayers+1; $layerIndex > 0; $layerIndex--) {
+        for ($layerIndex = $this->topology->hiddenLayers + 1; $layerIndex > 0; $layerIndex--) {
             $prevIndex = $layerIndex - 1;
             for ($j = 0; $j < count($this->layers[$prevIndex]->neurons); $j++) {
                 for ($k = 0; $k < count($this->layers[$layerIndex]->neurons); $k++) {

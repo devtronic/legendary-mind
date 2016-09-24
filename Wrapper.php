@@ -87,14 +87,28 @@ class Wrapper
         $this->mind = new Mind($this->topology, $activation, $activation_derivative);
     }
 
-    public function train($training)
+    public function archive($file)
+    {
+        file_put_contents($file, serialize($this));
+    }
+
+    public function restore($file)
+    {
+        $tmp = unserialize(file_get_contents($file));
+        foreach ($tmp as $k => $v) {
+            $this->{$k} = $v;
+        }
+        $this->mind->reInit();
+    }
+
+    public function train($training, $iterations = 1000, $learningRate = 0.2, $momentum = 0.01)
     {
         $lessons = [];
         foreach ($training as $lesson) {
             $lessons[] = $this->prepareLesson($lesson);
         }
 
-        $this->mind->train($lessons);
+        $this->mind->train($lessons, $iterations, $learningRate, $momentum);
     }
 
     public function propagate($lesson)
