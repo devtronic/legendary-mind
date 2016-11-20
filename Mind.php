@@ -36,6 +36,7 @@ class Mind
 
     /**
      * Network constructor.
+     *
      * @param Topology $topology
      * @param string $activation
      * @param string $activation_derivative
@@ -78,11 +79,17 @@ class Mind
         Mind::$instance = &$this;
     }
 
+    /**
+     * Set the Instance after a Restore
+     */
     public function reInit()
     {
         Mind::$instance = &$this;
     }
 
+    /**
+     * Create the synapses of each neuron
+     */
     public function connectNeurons()
     {
         for ($layerIndex = 0; $layerIndex < count($this->layers) - 2; $layerIndex++) {
@@ -104,7 +111,24 @@ class Mind
         }
     }
 
+    /**
+     * Predict the output for input values
+     *
+     * @param float[] $inputValues
+     * @deprecated 1.0.3 Call predict() instead. Will be removed in 1.0.4
+     */
     public function propagate($inputValues)
+    {
+        $this->predict($inputValues);
+    }
+
+    /**
+     * Predict the output for input values
+     *
+     * @param float[] $inputValues
+     * @throws \Exception
+     */
+    public function predict($inputValues)
     {
         if (count($inputValues) != $this->topology->neuronsInput) {
             throw new \Exception('Input values must equal input neurons');
@@ -116,6 +140,9 @@ class Mind
         $this->feedForward();
     }
 
+    /**
+     * Forward the input to the next layer
+     */
     private function feedForward()
     {
         for ($layerIndex = 1; $layerIndex < count($this->layers); $layerIndex++) {
@@ -125,6 +152,15 @@ class Mind
     }
 
     ## parts from http://pastebin.com/HRGVzR6L
+    /**
+     * Back propagation
+     *
+     * @param float[] $expected Expected output
+     * @param float $learningRate Learning Rate
+     * @param float $momentum Multiplier for Delta
+     * @return float The current error
+     * @throws \Exception
+     */
     public function backPropagate($expected, $learningRate = 0.2, $momentum = 0.01)
     {
         if (count($expected) != $this->topology->neuronsOutput) {
@@ -171,18 +207,6 @@ class Mind
             }
         }
 
-        // Input layer
-        for ($i = 0; $i < $this->topology->neuronsInput; $i++) {
-            for ($j = 0; $j < $this->topology->neuronsHidden; $j++) {
-                $change = $deltas[1][$j] * $this->layers[0]->neurons[$i]->outputVal;
-
-                $deltaOld = $this->layers[0]->neurons[$i]->synapses[$j]->deltaOld;
-                $this->layers[0]->neurons[$i]->synapses[$j]->weight += $learningRate * $change + $momentum * $deltaOld;
-                $this->layers[0]->neurons[$i]->synapses[$j]->deltaOld = $change;
-            }
-
-        }
-
         $error = 0.0;
         for ($k = 0; $k < count($expected); $k++) {
             $error += 0.5 * pow($expected[$k] - $this->layers[$lastLayerIndex]->neurons[$k]->outputVal, 2);
@@ -191,18 +215,43 @@ class Mind
         return $error;
     }
 
-    public function train($patterns, $iterations = 1000, $learningRate = 0.2, $momentum = 0.01)
+    /**
+     * Trains the patterns
+     *
+     * @param float[][][] $lessons The Lessons
+     * $lessons = [
+     *      [ # Lesson 1
+     *          [0, 1], # Input
+     *          [1], # Output
+     *      ],
+     *      [ # Lesson 2
+     *          [1, 1], # Input
+     *          [0], # Output
+     *      ],
+     * ];
+     *
+     *
+     * @param int $iterations The iterations of each lesson
+     * @param float $learningRate Learning Rate
+     * @param float $momentum Multiplier for Delta
+     */
+    public function train($lessons, $iterations = 1000, $learningRate = 0.2, $momentum = 0.01)
     {
         for ($i = 0; $i < $iterations; $i++) {
             $error = 0.0;
-            foreach ($patterns as $pat => $pattern) {
+            foreach ($lessons as $pat => $pattern) {
                 list($inputs, $targets) = $pattern;
-                $this->propagate($inputs);
+                $this->predict($inputs);
                 $error += $this->backPropagate($targets, $learningRate, $momentum);
             }
         }
     }
 
+    /**
+     * Returns the predicted output
+     *
+     * @return float[]
+     */
     public function getOutput()
     {
         $lastLayerIndex = count($this->layers) - 1;
@@ -215,18 +264,37 @@ class Mind
         return $outputValues;
     }
 
+    /**
+     * Calls the activation function
+     *
+     * @param float $x Input
+     * @return float
+     */
     public function activate($x)
     {
         $fn = $this->activation;
         return $fn($x);
     }
 
+    /**
+     * Calls the derivative of the activation function
+     *
+     * @param float $x Input
+     * @return float
+     */
     public function activateDerivative($x)
     {
         $fn = $this->activation_derivative;
         return $fn($x);
     }
 
+    /**
+     * Generates Random float between $a and $b
+     *
+     * @param float $a Minimum
+     * @param float $b Maximum
+     * @return float The random float
+     */
     public function n_rand($a, $b)
     {
         $random = ((float)mt_rand()) / (float)mt_getrandmax();
