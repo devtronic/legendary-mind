@@ -1,58 +1,72 @@
 <?php
+/*
+ * This file is part of the Devtronic Legendary Mind package.
+ *
+ * (c) Julian Finkler <admin@developer-heaven.de>
+ *
+ * For the full copyright and license information, please read the LICENSE
+ * file that was distributed with this source code.
+ */
 
 namespace Devtronic\LegendaryMind;
 
+/**
+ * Network Wrapper
+ *
+ * @see https://github.com/Devtronic/legendary-mind#with-wrapper-recommended
+ *
+ * @author Julian Finkler <admin@developer-heaven.de>
+ * @package Devtronic\LegendaryMind
+ */
 class Wrapper
 {
-    /**
-     * @var array
-     */
+    /** @var array */
     public $inputs;
 
-    /**
-     * @var array
-     */
+    /** @var array */
     public $input_mapping;
 
-    /**
-     * @var array
-     */
+    /** @var array */
     public $outputs;
 
-    /**
-     * @var array
-     */
+    /** @var array */
     public $output_mapping;
 
-    /**
-     * @var Topology
-     */
+    /** @var Topology */
     private $topology;
 
-    /**
-     * @var Mind
-     */
+    /** @var Mind */
     private $mind;
 
-    /**
-     * @var integer
-     */
+    /** @var int */
     private $hiddenNeurons;
 
-    /**
-     * @var integer
-     */
+    /** @var int */
     private $hiddenLayers;
 
+    /**
+     * Wrapper constructor.
+     *
+     * @param int $hiddenNeurons Number of neurons per hidden layer
+     * @param int $hiddenLayers number of hidden layers
+     */
     public function __construct($hiddenNeurons = 3, $hiddenLayers = 1)
     {
         $this->hiddenNeurons = $hiddenNeurons;
         $this->hiddenLayers = $hiddenLayers;
     }
 
-    public function initialize($properties, $outputs, $activation, $activation_derivative)
+    /**
+     * Initialize the wrapper
+     *
+     * @param array $inputs The input values
+     * @param array $outputs The output values
+     * @param string $activation The activation method
+     * @param string $activation_derivative The derivative of the activation method
+     */
+    public function initialize($inputs, $outputs, $activation, $activation_derivative)
     {
-        foreach ($properties as $name => $property) {
+        foreach ($inputs as $name => $property) {
             if (is_array($property)) {
                 foreach ($property as $prop) {
                     $this->inputs[] = 0;
@@ -87,11 +101,21 @@ class Wrapper
         $this->mind = new Mind($this->topology, $activation, $activation_derivative);
     }
 
+    /**
+     * Archives the network as a text file
+     *
+     * @param string $file Path to the file
+     */
     public function archive($file)
     {
         file_put_contents($file, serialize($this));
     }
 
+    /**
+     * Restores the network from file
+     *
+     * @param string $file Path to the archived network
+     */
     public function restore($file)
     {
         $tmp = unserialize(file_get_contents($file));
@@ -101,6 +125,14 @@ class Wrapper
         $this->mind->reInit();
     }
 
+    /**
+     * Trains the network
+     *
+     * @param array $training The training
+     * @param int $iterations The iterations
+     * @param float $learningRate The learning rate
+     * @param float $momentum The momentum
+     */
     public function train($training, $iterations = 1000, $learningRate = 0.2, $momentum = 0.01)
     {
         $lessons = [];
@@ -111,18 +143,44 @@ class Wrapper
         $this->mind->train($lessons, $iterations, $learningRate, $momentum);
     }
 
+    /**
+     * Predict the output for input values
+     *
+     * @param $lesson
+     * @deprecated 1.0.3 Call predict() instead. Will be removed in 1.0.4
+     */
     public function propagate($lesson)
     {
-        $prepared = $this->prepareLesson($lesson);
-        $this->mind->propagate($prepared[0]);
+        $this->predict($lesson);
     }
 
+    /**
+     * Predict the output for input values
+     *
+     * @param $lesson
+     */
+    public function predict($lesson)
+    {
+        $prepared = $this->prepareLesson($lesson);
+        $this->mind->predict($prepared[0]);
+    }
+
+    /**
+     * Back propagation
+     *
+     * @param array $lesson The lesson
+     */
     public function backPropagate($lesson)
     {
         $prepared = $this->prepareLesson($lesson);
         $this->mind->backPropagate($prepared[1]);
     }
 
+    /**
+     * Get the predicted output
+     *
+     * @return array
+     */
     public function getResult()
     {
         $net_out = $this->mind->getOutput();
@@ -139,9 +197,14 @@ class Wrapper
         return $output;
     }
 
+    /**
+     * Prepares the lesson for the neural network
+     *
+     * @param array $lesson The lesson
+     * @return array The prepared lesson
+     */
     public function prepareLesson($lesson)
     {
-
         $prepared_inputs = $this->inputs;
         $prepared_outputs = $this->outputs;
 

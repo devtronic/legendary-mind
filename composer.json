@@ -1,20 +1,23 @@
 {
-    "name": "devtronic/legendary-mind",
-    "description": "Easy to use neural network written in PHP",
-    "type": "library",
-	"version": "1.0.3",
-    "require": {
-        "php": ">=5.4.0"
-    },
-    "license": "LGPL-3.0",
-    "authors": [
-        {
-            "name": "Julian Finkler",
-            "email": "julian@developer-heaven.de"
-        }
-    ],
-    "minimum-stability": "stable",
-    "autoload": {
-        "psr-4": { "Devtronic\\LegendaryMind\\": "" }
+  "name": "devtronic/legendary-mind",
+  "description": "Easy to use neural network written in PHP",
+  "type": "library",
+  "version": "1.0.3",
+  "require": {
+    "php": ">=5.4.0"
+  },
+  "license": "LGPL-3.0",
+  "authors": [
+    {
+      "name": "Julian Finkler",
+      "email": "julian@developer-heaven.de"
     }
+  ],
+  "minimum-stability": "stable",
+  "autoload": {
+    "psr-4": {
+      "Devtronic\\LegendaryMind\\": "src/",
+      "Devtronic\\Tests\\LegendaryMind\\": "tests/"
+    }
+  }
 }

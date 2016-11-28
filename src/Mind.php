@@ -1,37 +1,41 @@
 <?php
+/*
+ * This file is part of the Devtronic Legendary Mind package.
+ *
+ * (c) Julian Finkler <admin@developer-heaven.de>
+ *
+ * For the full copyright and license information, please read the LICENSE
+ * file that was distributed with this source code.
+ */
+
 namespace Devtronic\LegendaryMind;
 
+/**
+ * This "is" the neural network.
+ *
+ * @see https://github.com/Devtronic/legendary-mind#standalone-network
+ *
+ * @package Devtronic\LegendaryMind
+ * @author Julian Finkler <admin@developer-heaven.de>
+ */
 class Mind
 {
-
-    /**
-     * @var Topology
-     */
+    /** @var Topology */
     public $topology;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     public $activation;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     public $activation_derivative;
 
-    /**
-     * @var Layer[]
-     */
-    public $layers;
+    /** @var Layer[] */
+    public $layers = [];
 
-    /**
-     * @var Mind
-     */
+    /** @var Mind */
     public static $instance;
 
-    /**
-     * @var float
-     */
+    /** @var float */
     public $error = 0.0;
 
     /**
@@ -46,7 +50,6 @@ class Mind
         $this->topology = $topology;
         $this->activation = $activation;
         $this->activation_derivative = $activation_derivative;
-
 
         // Create Neurons
 
@@ -151,7 +154,6 @@ class Mind
         }
     }
 
-    ## parts from http://pastebin.com/HRGVzR6L
     /**
      * Back propagation
      *
@@ -216,7 +218,7 @@ class Mind
     }
 
     /**
-     * Trains the patterns
+     * Trains the network
      *
      * @param float[][][] $lessons The Lessons
      * $lessons = [
