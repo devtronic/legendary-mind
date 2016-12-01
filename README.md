@@ -1,6 +1,6 @@
 [![GitHub tag](https://img.shields.io/packagist/v/devtronic/legendary-mind.svg)](https://github.com/Devtronic/legendary-mind)
 [![Packagist](https://img.shields.io/packagist/l/devtronic/legendary-mind.svg)](https://github.com/Devtronic/legendary-mind/blob/master/LICENSE)
-[![Travis](https://img.shields.io/travis/devtronic/legendary-mind.svg)](https://travis-ci.org/Devtronic/legendary-mind/)
+[![Travis](https://img.shields.io/travis/Devtronic/legendary-mind.svg)](https://travis-ci.org/Devtronic/legendary-mind/)
 [![Packagist](https://img.shields.io/packagist/dt/devtronic/legendary-mind.svg)](https://github.com/Devtronic/legendary-mind)
 
 # Legendary Mind
