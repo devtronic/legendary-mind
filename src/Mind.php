@@ -22,7 +22,7 @@ use Devtronic\LegendaryMind\Activator\HTanActivator;
  */
 class Mind
 {
-    /** @var Topology */
+    /** @var int[] */
     public $topology;
 
     /** @var IActivator */
@@ -40,10 +40,10 @@ class Mind
     /**
      * Network constructor.
      *
-     * @param Topology $topology
+     * @param int[] $topology
      * @param IActivator $activator
      */
-    public function __construct(Topology $topology, $activator = null)
+    public function __construct(array $topology, $activator = null)
     {
         if ($activator === null) {
             $activator = new HTanActivator();
@@ -56,16 +56,16 @@ class Mind
 
         // Input Layer
         $inputLayer = new Layer();
-        for ($iNeuron = 0; $iNeuron < $this->topology->neuronsInput; $iNeuron++) {
+        for ($iNeuron = 0; $iNeuron < $this->topology[0]; $iNeuron++) {
             $inputLayer->neurons[] = new Neuron();
         }
         $this->layers[] = $inputLayer;
 
         // Hidden Layers
-        for ($hiddenLayerIndex = 0; $hiddenLayerIndex < $this->topology->hiddenLayers; $hiddenLayerIndex++) {
+        for ($hiddenLayerIndex = 1; $hiddenLayerIndex < count($this->topology) - 1; $hiddenLayerIndex++) {
             $hiddenLayer = new Layer();
 
-            for ($hNeuron = 0; $hNeuron < $this->topology->neuronsHidden; $hNeuron++) {
+            for ($hNeuron = 0; $hNeuron < $this->topology[$hiddenLayerIndex]; $hNeuron++) {
                 $hiddenLayer->neurons[] = new Neuron();
             }
 
@@ -74,7 +74,7 @@ class Mind
 
         // Output Layer
         $outputLayer = new Layer();
-        for ($oNeuron = 0; $oNeuron < $this->topology->neuronsOutput; $oNeuron++) {
+        for ($oNeuron = 0; $oNeuron < $this->topology[count($this->topology) - 1]; $oNeuron++) {
             $outputLayer->neurons[] = new Neuron();
         }
         $this->layers[] = $outputLayer;
@@ -123,11 +123,11 @@ class Mind
      */
     public function predict($inputValues)
     {
-        if (count($inputValues) != $this->topology->neuronsInput) {
+        if (count($inputValues) != $this->topology[0]) {
             throw new \Exception('Input values must equal input neurons');
         }
 
-        for ($iNeuron = 0; $iNeuron < $this->topology->neuronsInput; $iNeuron++) {
+        for ($iNeuron = 0; $iNeuron < $this->topology[0]; $iNeuron++) {
             $this->layers[0]->neurons[$iNeuron]->outputVal = $inputValues[$iNeuron];
         }
         $this->feedForward();
@@ -155,7 +155,7 @@ class Mind
      */
     public function backPropagate($expected, $learningRate = 0.2, $momentum = 0.01)
     {
-        if (count($expected) != $this->topology->neuronsOutput) {
+        if (count($expected) != $this->topology[count($this->topology) - 1]) {
             throw new \Exception('wrong number of target values');
         }
 
@@ -163,16 +163,16 @@ class Mind
 
         // Output Layer
         $lastLayerIndex = count($this->layers) - 1;
-        for ($nOutput = 0; $nOutput < $this->topology->neuronsOutput; $nOutput++) {
+        for ($nOutput = 0; $nOutput < $this->topology[count($this->topology) - 1]; $nOutput++) {
             $currentVal = $this->layers[$lastLayerIndex]->neurons[$nOutput]->outputVal;
             $error = $expected[$nOutput] - $currentVal;
             $deltas[$lastLayerIndex][$nOutput] = $this->activateDerivative($currentVal) * $error;
         }
 
         // Hidden Layers (reverse)
-        for ($hiddenLayerIndex = $this->topology->hiddenLayers; $hiddenLayerIndex > 0; $hiddenLayerIndex--) {
+        for ($hiddenLayerIndex = count($this->topology) - 2; $hiddenLayerIndex > 0; $hiddenLayerIndex--) {
             $nextLayerIndex = $hiddenLayerIndex + 1;
-            for ($nHidden = 0; $nHidden < $this->topology->neuronsHidden; $nHidden++) {
+            for ($nHidden = 0; $nHidden < $this->topology[$hiddenLayerIndex]; $nHidden++) {
                 $currentVal = $this->layers[$hiddenLayerIndex]->neurons[$nHidden]->outputVal;
 
                 $error = 0.0;
@@ -186,7 +186,7 @@ class Mind
 
         // Update Weights
         // Freaking complex don't touch it
-        for ($layerIndex = $this->topology->hiddenLayers + 1; $layerIndex > 0; $layerIndex--) {
+        for ($layerIndex = count($this->topology) - 1; $layerIndex > 0; $layerIndex--) {
             $prevIndex = $layerIndex - 1;
             for ($j = 0; $j < count($this->layers[$prevIndex]->neurons); $j++) {
                 for ($k = 0; $k < count($this->layers[$layerIndex]->neurons); $k++) {
@@ -249,9 +249,9 @@ class Mind
         $lastLayerIndex = count($this->layers) - 1;
         $outputValues = [];
 
-        for ($nOutput = 0; $nOutput < $this->topology->neuronsOutput; $nOutput++) {
-            $outputValues[$nOutput] = number_format($this->layers[$lastLayerIndex]->neurons[$nOutput]->outputVal, 5,
-                '.', '');
+        for ($nOutput = 0; $nOutput < $this->topology[count($this->topology) - 1]; $nOutput++) {
+            $output = $this->layers[$lastLayerIndex]->neurons[$nOutput]->outputVal;
+            $outputValues[$nOutput] = number_format($output, 5, '.', '');
         }
 
         return $outputValues;
@@ -290,5 +290,4 @@ class Mind
     {
         return ($min + lcg_value() * (abs($max - $min)));
     }
-
 }

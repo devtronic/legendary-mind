@@ -32,7 +32,7 @@ class Wrapper
     /** @var array */
     public $output_mapping;
 
-    /** @var Topology */
+    /** @var int[] */
     private $topology;
 
     /** @var Mind */
@@ -95,7 +95,16 @@ class Wrapper
         $hiddenLayers = $this->hiddenLayers;
         $neuronsOutput = count($this->outputs);
 
-        $this->topology = new Topology($neuronsInput, $neuronsHidden, $hiddenLayers, $neuronsOutput);
+        $topology = [];
+        $topology[] = $neuronsInput;
+
+        for ($i = 0; $i < $hiddenLayers; $i++) {
+            $topology[] = $neuronsHidden;
+        }
+
+        $topology[] = $neuronsOutput;
+
+        $this->topology = $topology;
 
         $this->mind = new Mind($this->topology, $activator);
     }

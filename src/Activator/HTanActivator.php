@@ -10,7 +10,6 @@
 
 namespace Devtronic\LegendaryMind\Activator;
 
-
 use Devtronic\LegendaryMind\IActivator;
 
 class HTanActivator implements IActivator

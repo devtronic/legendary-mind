@@ -21,12 +21,11 @@ composer require devtronic/legendary-mind
 
 use Devtronic\LegendaryMind\Activator\HTanActivator;
 use Devtronic\LegendaryMind\Mind;
-use Devtronic\LegendaryMind\Topology;
 
 require_once 'vendor/autoload.php';
 
 // Create the topology for the net
-$topology = new Topology(2, 3, 1, 1);
+$topology = [2, 3, 1];
 
 // Set the activator
 $activator = new HTanActivator();
@@ -69,7 +68,6 @@ print_r($mind->getOutput());
 
 // Backpropagate
 $mind->backPropagate($expected);
-
 ```
 
 #### With Wrapper (recommended)
