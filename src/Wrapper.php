@@ -61,10 +61,9 @@ class Wrapper
      *
      * @param array $inputs The input values
      * @param array $outputs The output values
-     * @param string $activation The activation method
-     * @param string $activation_derivative The derivative of the activation method
+     * @param null|IActivator $activator
      */
-    public function initialize($inputs, $outputs, $activation, $activation_derivative)
+    public function initialize($inputs, $outputs, $activator = null)
     {
         foreach ($inputs as $name => $property) {
             if (is_array($property)) {
@@ -98,7 +97,7 @@ class Wrapper
 
         $this->topology = new Topology($neuronsInput, $neuronsHidden, $hiddenLayers, $neuronsOutput);
 
-        $this->mind = new Mind($this->topology, $activation, $activation_derivative);
+        $this->mind = new Mind($this->topology, $activator);
     }
 
     /**
@@ -141,17 +140,6 @@ class Wrapper
         }
 
         $this->mind->train($lessons, $iterations, $learningRate, $momentum);
-    }
-
-    /**
-     * Predict the output for input values
-     *
-     * @param $lesson
-     * @deprecated 1.0.3 Call predict() instead. Will be removed in 1.0.4
-     */
-    public function propagate($lesson)
-    {
-        $this->predict($lesson);
     }
 
     /**
@@ -229,6 +217,7 @@ class Wrapper
                 }
             }
         }
+
         if (isset($lesson['output'])) {
             foreach ($lesson['output'] as $name => $output) {
                 if (is_array($output)) {

@@ -1,3 +1,8 @@
+[![GitHub tag](https://img.shields.io/packagist/v/devtronic/legendary-mind.svg)](https://github.com/Devtronic/legendary-mind)
+[![Packagist](https://img.shields.io/packagist/l/devtronic/legendary-mind.svg)](https://github.com/Devtronic/legendary-mind/blob/master/LICENSE)
+[![Travis](https://img.shields.io/travis/devtronic/legendary-mind.svg)](https://travis-ci.org/Devtronic/legendary-mind/)
+[![Packagist](https://img.shields.io/packagist/dt/devtronic/legendary-mind.svg)](https://github.com/Devtronic/legendary-mind)
+
 # Legendary Mind
 
 Legendary Mind is an easy to use Neural Network written in PHP
@@ -14,26 +19,20 @@ composer require devtronic/legendary-mind
 ```php
 <?php
 
+use Devtronic\LegendaryMind\Activator\HTanActivator;
 use Devtronic\LegendaryMind\Mind;
 use Devtronic\LegendaryMind\Topology;
 
 require_once 'vendor/autoload.php';
 
-// Activation derivative function
-function tanh_prime($y)
-{
-    return 1.0 - pow($y, 2);
-}
-
 // Create the topology for the net
 $topology = new Topology(2, 3, 1, 1);
 
-// Set the activation function
-$activation = 'tanh';
-$activation_derivative = 'tanh_prime';
+// Set the activator
+$activator = new HTanActivator();
 
 // Instantiate the Mind
-$mind = new Mind($topology, $activation, $activation_derivative);
+$mind = new Mind($topology, $activator);
 
 // Setup XOR Lessons
 $lessons = [
@@ -59,11 +58,11 @@ $lessons = [
 $mind->train($lessons);
 
 // Setup the check lesson
-$test = [1, 1];
-$expected = [0];
+$test = [1, 0];
+$expected = [1];
 
 // Propagate the check lesson
-$mind->propagate($test);
+$mind->predict($test);
 
 // Print the Output
 print_r($mind->getOutput());
@@ -77,19 +76,13 @@ $mind->backPropagate($expected);
 ```php
 <?php
 
+use Devtronic\LegendaryMind\Activator\HTanActivator;
 use Devtronic\LegendaryMind\Wrapper;
 
 require_once 'vendor/autoload.php';
 
-// Activation derivative function
-function tanh_prime($y)
-{
-    return 1.0 - pow($y, 2);
-}
-
-// Set the activation function
-$activation = 'tanh';
-$activation_derivative = 'tanh_prime';
+// Set the activator function
+$activator = new HTanActivator();
 
 $wrapper = new Wrapper($hiddenNeurons = 3, $hiddenLayers = 1);
 
@@ -104,7 +97,7 @@ $outputs = [
 ];
 
 // Setup the wrapper
-$wrapper->initialize($properties, $outputs, $activation, $activation_derivative);
+$wrapper->initialize($properties, $outputs, $activator);
 
 // Setup the lessons
 $lessons = [
@@ -152,7 +145,7 @@ $test_lesson = [
 ];
 
 // Propagate the check lesson
-$wrapper->propagate($test_lesson);
+$wrapper->predict($test_lesson);
 
 // Print the Output
 print_r($wrapper->getResult());
@@ -161,24 +154,17 @@ print_r($wrapper->getResult());
 $wrapper->backPropagate($test_lesson);
 ```
 
-#### Archive and restore the network (only with wrapper, Line 23 and Line 74)
+#### Archive and restore the network (only with wrapper, Line 16 and Line 67)
 ```php
 <?php
 
+use Devtronic\LegendaryMind\Activator\HTanActivator;
 use Devtronic\LegendaryMind\Wrapper;
 
 require_once 'vendor/autoload.php';
 
-// Activation derivative function
-function tanh_prime($y)
-{
-    return 1.0 - pow($y, 2);
-}
-
 // Set the activation function
-$activation = 'tanh';
-$activation_derivative = 'tanh_prime';
-
+$activator = new HTanActivator();
 $wrapper = new Wrapper($hiddenNeurons = 3, $hiddenLayers = 1);
 
 $network_file = 'network.txt';
@@ -199,7 +185,7 @@ if (is_file($network_file)) {
     ];
 
     // Setup the wrapper
-    $wrapper->initialize($properties, $outputs, $activation, $activation_derivative);
+    $wrapper->initialize($properties, $outputs, $activator);
 
     // Setup the lessons
     $lessons = [
@@ -251,7 +237,7 @@ $test_lesson = [
 ];
 
 // Propagate the check lesson
-$wrapper->propagate($test_lesson);
+$wrapper->predict($test_lesson);
 
 // Print the Output
 print_r($wrapper->getResult());

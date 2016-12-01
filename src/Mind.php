@@ -10,6 +10,8 @@
 
 namespace Devtronic\LegendaryMind;
 
+use Devtronic\LegendaryMind\Activator\HTanActivator;
+
 /**
  * This "is" the neural network.
  *
@@ -23,11 +25,8 @@ class Mind
     /** @var Topology */
     public $topology;
 
-    /** @var string */
-    public $activation;
-
-    /** @var string */
-    public $activation_derivative;
+    /** @var IActivator */
+    public $activator;
 
     /** @var Layer[] */
     public $layers = [];
@@ -42,14 +41,16 @@ class Mind
      * Network constructor.
      *
      * @param Topology $topology
-     * @param string $activation
-     * @param string $activation_derivative
+     * @param IActivator $activator
      */
-    public function __construct(Topology $topology, $activation = 'sigmoid', $activation_derivative = 'sigmoid_prime')
+    public function __construct(Topology $topology, $activator = null)
     {
+        if ($activator === null) {
+            $activator = new HTanActivator();
+        }
+
         $this->topology = $topology;
-        $this->activation = $activation;
-        $this->activation_derivative = $activation_derivative;
+        $this->activator = $activator;
 
         // Create Neurons
 
@@ -100,7 +101,7 @@ class Mind
 
             for ($n = 0; $n < count($this->layers[$layerIndex]->neurons); $n++) {
                 for ($s = 0; $s < $synapseCount; $s++) {
-                    $this->layers[$layerIndex]->neurons[$n]->synapses[] = new Synapse($this->n_rand(-0.2, 0.2));
+                    $this->layers[$layerIndex]->neurons[$n]->synapses[] = new Synapse($this->randomBetween(-0.2, 0.2));
                 }
             }
         }
@@ -109,20 +110,9 @@ class Mind
 
         for ($n = 0; $n < count($this->layers[$layerIndex]->neurons); $n++) {
             for ($s = 0; $s < $synapseCount; $s++) {
-                $this->layers[$layerIndex]->neurons[$n]->synapses[] = new Synapse($this->n_rand(-2.0, 2.0));
+                $this->layers[$layerIndex]->neurons[$n]->synapses[] = new Synapse($this->randomBetween(-2.0, 2.0));
             }
         }
-    }
-
-    /**
-     * Predict the output for input values
-     *
-     * @param float[] $inputValues
-     * @deprecated 1.0.3 Call predict() instead. Will be removed in 1.0.4
-     */
-    public function propagate($inputValues)
-    {
-        $this->predict($inputValues);
     }
 
     /**
@@ -260,7 +250,8 @@ class Mind
         $outputValues = [];
 
         for ($nOutput = 0; $nOutput < $this->topology->neuronsOutput; $nOutput++) {
-            $outputValues[$nOutput] = number_format($this->layers[$lastLayerIndex]->neurons[$nOutput]->outputVal, 5, '.', '');
+            $outputValues[$nOutput] = number_format($this->layers[$lastLayerIndex]->neurons[$nOutput]->outputVal, 5,
+                '.', '');
         }
 
         return $outputValues;
@@ -274,8 +265,7 @@ class Mind
      */
     public function activate($x)
     {
-        $fn = $this->activation;
-        return $fn($x);
+        return $this->activator->activate($x);
     }
 
     /**
@@ -286,22 +276,19 @@ class Mind
      */
     public function activateDerivative($x)
     {
-        $fn = $this->activation_derivative;
-        return $fn($x);
+        return $this->activator->activateDerivative($x);
     }
 
     /**
-     * Generates Random float between $a and $b
+     * Generates Random float between $min and $max
      *
-     * @param float $a Minimum
-     * @param float $b Maximum
+     * @param float $min Minimum
+     * @param float $max Maximum
      * @return float The random float
      */
-    public function n_rand($a, $b)
+    public function randomBetween($min, $max)
     {
-        $random = ((float)mt_rand()) / (float)mt_getrandmax();
-        $diff = $b - $a;
-        $r = $random * $diff;
-        return $a + $r;
+        return ($min + lcg_value() * (abs($max - $min)));
     }
+
 }

@@ -13,7 +13,7 @@ namespace Devtronic\LegendaryMind;
 /**
  * Network Topology
  *
- * @deprecated 1.0.3 Use an array of int instead. Will be removed in 1.0.4
+ * @deprecated 1.0.3 Use an array of int instead. Will be removed in 1.1.1
  * @author Julian Finkler <admin@developer-heaven.de>
  * @package Devtronic\LegendaryMind
  */
