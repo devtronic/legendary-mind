@@ -12,9 +12,14 @@ namespace Devtronic\Tests\LegendaryMind;
 
 
 use Devtronic\LegendaryMind\Activator\HTanActivator;
+use PHPUnit\Framework\TestCase;
 
-
-class HTanActivatorTest extends \PHPUnit_Framework_TestCase
+/**
+ * Test for HTanActivator
+ *
+ * @package Devtronic\Tests\LegendaryMind
+ */
+class HTanActivatorTest extends TestCase
 {
     public function testActivation()
     {

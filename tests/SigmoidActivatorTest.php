@@ -11,8 +11,13 @@
 namespace Devtronic\Tests\LegendaryMind;
 
 use Devtronic\LegendaryMind\Activator\SigmoidActivator;
+use PHPUnit\Framework\TestCase;
 
-class SigmoidActivatorTest extends \PHPUnit_Framework_TestCase
+/**
+ * Test for SigmoidActivator
+ * @package Devtronic\Tests\LegendaryMind
+ */
+class SigmoidActivatorTest extends TestCase
 {
     public function testActivation()
     {
