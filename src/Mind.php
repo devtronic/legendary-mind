@@ -10,7 +10,8 @@
 
 namespace Devtronic\LegendaryMind;
 
-use Devtronic\LegendaryMind\Activator\HTanActivator;
+use Devtronic\Layerless\Activator\ActivatorInterface;
+use Devtronic\Layerless\Activator\TanHActivator;
 
 /**
  * This "is" the neural network.
@@ -25,7 +26,7 @@ class Mind
     /** @var int[] */
     public $topology;
 
-    /** @var IActivator */
+    /** @var ActivatorInterface */
     public $activator;
 
     /** @var Layer[] */
@@ -41,12 +42,12 @@ class Mind
      * Network constructor.
      *
      * @param int[] $topology
-     * @param IActivator $activator
+     * @param ActivatorInterface $activator
      */
     public function __construct(array $topology, $activator = null)
     {
         if ($activator === null) {
-            $activator = new HTanActivator();
+            $activator = new TanHActivator();
         }
 
         $this->topology = $topology;

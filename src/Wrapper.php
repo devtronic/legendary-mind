@@ -10,6 +10,8 @@
 
 namespace Devtronic\LegendaryMind;
 
+use Devtronic\Layerless\Activator\ActivatorInterface;
+
 /**
  * Network Wrapper
  *
@@ -61,7 +63,7 @@ class Wrapper
      *
      * @param array $inputs The input values
      * @param array $outputs The output values
-     * @param null|IActivator $activator
+     * @param null|ActivatorInterface $activator
      */
     public function initialize($inputs, $outputs, $activator = null)
     {

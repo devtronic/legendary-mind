@@ -10,21 +10,24 @@
 
 namespace Devtronic\Tests\LegendaryMind;
 
-use Devtronic\LegendaryMind\Activator\HTanActivator;
+use Devtronic\Layerless\Activator\TanHActivator;
 use Devtronic\LegendaryMind\Layer;
 use Devtronic\LegendaryMind\Mind;
 use Devtronic\LegendaryMind\Neuron;
 use Devtronic\LegendaryMind\Synapse;
 use PHPUnit\Framework\TestCase;
 
-
+/**
+ * Test for Mind
+ * @package Devtronic\Tests\LegendaryMind
+ */
 class MindTest extends TestCase
 {
 
     public function testConstruct()
     {
         $topology = [2, 3, 1];
-        $activator = new HTanActivator();
+        $activator = new TanHActivator();
 
         $mind = new Mind($topology, $activator);
 
@@ -35,7 +38,7 @@ class MindTest extends TestCase
     public function testLayers()
     {
         $topology = [2, 3, 1];
-        $activator = new HTanActivator();
+        $activator = new TanHActivator();
 
         $mind = new Mind($topology, $activator);
 
@@ -45,7 +48,7 @@ class MindTest extends TestCase
     public function testNeurons()
     {
         $topology = [2, 3, 1];
-        $activator = new HTanActivator();
+        $activator = new TanHActivator();
 
         $mind = new Mind($topology, $activator);
 
@@ -57,7 +60,7 @@ class MindTest extends TestCase
     public function testActivation()
     {
         $topology = [2, 3, 1];
-        $activator = new HTanActivator();
+        $activator = new TanHActivator();
 
         $mind = new Mind($topology, $activator);
 
@@ -68,7 +71,7 @@ class MindTest extends TestCase
     public function testDerivative()
     {
         $topology = [2, 3, 1];
-        $activator = new HTanActivator();
+        $activator = new TanHActivator();
 
         $mind = new Mind($topology, $activator);
 
@@ -79,7 +82,7 @@ class MindTest extends TestCase
     public function testFeedForward()
     {
         $topology = [2, 3, 1];
-        $activator = new HTanActivator();
+        $activator = new TanHActivator();
 
         new Mind($topology, $activator);
 
@@ -114,7 +117,7 @@ class MindTest extends TestCase
     public function testRandomize()
     {
         $topology = [2, 3, 1];
-        $activator = new HTanActivator();
+        $activator = new TanHActivator();
 
         $mind = new Mind($topology, $activator);
 
@@ -138,7 +141,7 @@ class MindTest extends TestCase
     public function testSimpleXOR()
     {
         $topology = [2, 3, 1];
-        $activator = new HTanActivator();
+        $activator = new TanHActivator();
 
         $mind = new Mind($topology, $activator);
 
