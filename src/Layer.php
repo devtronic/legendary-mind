@@ -1,8 +1,8 @@
 <?php
-/*
+/**
  * This file is part of the Devtronic Legendary Mind package.
  *
- * (c) Julian Finkler <admin@developer-heaven.de>
+ * (c) Julian Finkler <julian@developer-heaven.de>
  *
  * For the full copyright and license information, please read the LICENSE
  * file that was distributed with this source code.
@@ -10,33 +10,77 @@
 
 namespace Devtronic\LegendaryMind;
 
+use Devtronic\Layerless\Neuron;
+
 /**
  * This class represents a layer in the neural network.
  * A layer contains neurons and a feed forward method for
  * calculating neuron outputs.
  *
- * @author Julian Finkler <admin@developer-heaven.de>
+ * @author Julian Finkler <julian@developer-heaven.de>
  * @package Devtronic\LegendaryMind
  */
 class Layer
 {
-    /** @var Neuron[] */
-    public $neurons = [];
+    /** @var \Devtronic\Layerless\Neuron[] */
+    protected $neurons = [];
 
     /**
-     * Calculate the neuron outputs
-     *
-     * @param Layer $previousLayer The previous layer
+     * Activate the neurons
      */
-    public function feedForward($previousLayer)
+    public function feedForward()
     {
-        for ($n = 0; $n < count($this->neurons); $n++) {
-            $sum = 0.0;
-            for ($pNeuron = 0; $pNeuron < count($previousLayer->neurons); $pNeuron++) {
-                $sum += $previousLayer->neurons[$pNeuron]->outputVal * $previousLayer->neurons[$pNeuron]->synapses[$n]->weight;
-            }
-            $sum = Mind::$instance->activate($sum);
-            $this->neurons[$n]->outputVal = $sum;
+        foreach ($this->neurons as $neuron) {
+            $neuron->activate();
         }
+    }
+
+    /**
+     * Adds a neuron to the layer
+     * @param Neuron $neuron
+     * @return $this
+     */
+    public function addNeuron(Neuron $neuron)
+    {
+        $this->neurons[] = $neuron;
+        return $this;
+    }
+
+    /**
+     * Adds multiple neurons to the layer
+     * @param Neuron[] $neurons
+     * @return $this
+     * @throws \Exception
+     */
+    public function addNeurons(array $neurons)
+    {
+        foreach ($neurons as $neuron) {
+            if ($neuron instanceof Neuron === false) {
+                throw new \Exception(sprintf('Expect object of type Neuron, %s given', gettype($neuron)));
+            }
+            $this->addNeuron($neuron);
+        }
+        return $this;
+    }
+
+    /**
+     * @return Neuron[]
+     */
+    public function getNeurons()
+    {
+        return $this->neurons;
+    }
+
+    /**
+     * @param integer $index Index of the Neuron
+     * @return Neuron
+     * @throws \Exception
+     */
+    public function getNeuron($index)
+    {
+        if (!isset($this->neurons[$index])) {
+            throw new \Exception(sprintf('Neuron #%s is undefined', $index));
+        }
+        return $this->neurons[$index];
     }
 }
