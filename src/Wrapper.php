@@ -1,8 +1,8 @@
 <?php
-/*
+/**
  * This file is part of the Devtronic Legendary Mind package.
  *
- * (c) Julian Finkler <admin@developer-heaven.de>
+ * (c) Julian Finkler <julian@developer-heaven.de>
  *
  * For the full copyright and license information, please read the LICENSE
  * file that was distributed with this source code.
@@ -10,12 +10,14 @@
 
 namespace Devtronic\LegendaryMind;
 
+use Devtronic\Layerless\Activator\ActivatorInterface;
+
 /**
  * Network Wrapper
  *
  * @see https://github.com/Devtronic/legendary-mind#with-wrapper-recommended
  *
- * @author Julian Finkler <admin@developer-heaven.de>
+ * @author Julian Finkler <julian@developer-heaven.de>
  * @package Devtronic\LegendaryMind
  */
 class Wrapper
@@ -24,13 +26,13 @@ class Wrapper
     public $inputs;
 
     /** @var array */
-    public $input_mapping;
+    public $inputMapping;
 
     /** @var array */
     public $outputs;
 
     /** @var array */
-    public $output_mapping;
+    public $outputMapping;
 
     /** @var int[] */
     private $topology;
@@ -61,7 +63,7 @@ class Wrapper
      *
      * @param array $inputs The input values
      * @param array $outputs The output values
-     * @param null|IActivator $activator
+     * @param null|ActivatorInterface $activator
      */
     public function initialize($inputs, $outputs, $activator = null)
     {
@@ -69,11 +71,11 @@ class Wrapper
             if (is_array($property)) {
                 foreach ($property as $prop) {
                     $this->inputs[] = 0;
-                    $this->input_mapping[$name][$prop] = count($this->inputs) - 1;
+                    $this->inputMapping[$name][$prop] = count($this->inputs) - 1;
                 }
             } else {
                 $this->inputs[] = 0;
-                $this->input_mapping[$property] = count($this->inputs) - 1;
+                $this->inputMapping[$property] = count($this->inputs) - 1;
             }
         }
 
@@ -82,11 +84,11 @@ class Wrapper
             if (is_array($property)) {
                 foreach ($property as $prop) {
                     $this->outputs[] = 0;
-                    $this->output_mapping[$name][$prop] = count($this->outputs) - 1;
+                    $this->outputMapping[$name][$prop] = count($this->outputs) - 1;
                 }
             } else {
                 $this->outputs[] = 0;
-                $this->output_mapping[$property] = count($this->outputs) - 1;
+                $this->outputMapping[$property] = count($this->outputs) - 1;
             }
         }
 
@@ -130,7 +132,6 @@ class Wrapper
         foreach ($tmp as $k => $v) {
             $this->{$k} = $v;
         }
-        $this->mind->reInit();
     }
 
     /**
@@ -139,16 +140,15 @@ class Wrapper
      * @param array $training The training
      * @param int $iterations The iterations
      * @param float $learningRate The learning rate
-     * @param float $momentum The momentum
      */
-    public function train($training, $iterations = 1000, $learningRate = 0.2, $momentum = 0.01)
+    public function train($training, $iterations = 1000, $learningRate = 0.2)
     {
         $lessons = [];
         foreach ($training as $lesson) {
             $lessons[] = $this->prepareLesson($lesson);
         }
 
-        $this->mind->train($lessons, $iterations, $learningRate, $momentum);
+        $this->mind->train($lessons, $iterations, $learningRate);
     }
 
     /**
@@ -180,15 +180,15 @@ class Wrapper
      */
     public function getResult()
     {
-        $net_out = $this->mind->getOutput();
-        $output = $this->output_mapping;
+        $netOut = $this->mind->getOutput();
+        $output = $this->outputMapping;
         foreach ($output as $name => $out) {
             if (is_array($out)) {
                 foreach ($out as $k => $v) {
-                    $output[$name][$k] = $net_out[$v];
+                    $output[$name][$k] = $netOut[$v];
                 }
             } else {
-                $output[$name] = $net_out[$out];
+                $output[$name] = $netOut[$out];
             }
         }
         return $output;
@@ -202,52 +202,72 @@ class Wrapper
      */
     public function prepareLesson($lesson)
     {
-        $prepared_inputs = $this->inputs;
-        $prepared_outputs = $this->outputs;
+        if (!isset($lesson['input'])) {
+            $lesson['input'] = [];
+        }
+        $preparedInputs = $this->prepareLessonsInput($lesson);
 
-        if (isset($lesson['input'])) {
-            foreach ($lesson['input'] as $name => $input) {
-                if (is_array($input)) {
-                    foreach ($input as $v) {
-                        if (isset($this->input_mapping[$name][$v])) {
-                            $prepared_inputs[$this->input_mapping[$name][$v]] = 1;
-                        }
+        if (!isset($lesson['output'])) {
+            $lesson['output'] = [];
+        }
+        $preparedOutputs = $this->prepareLessonsOutput($lesson);
+
+        return [$preparedInputs, $preparedOutputs];
+    }
+
+    /**
+     * Prepares the inputs for a lesson
+     *
+     * @param array $lesson The lesson
+     * @return array The inputs
+     */
+    private function prepareLessonsInput($lesson)
+    {
+        $preparedInputs = $this->inputs;
+
+        foreach ($lesson['input'] as $name => $input) {
+            if (is_array($input)) {
+                foreach ($input as $v) {
+                    if (isset($this->inputMapping[$name][$v])) {
+                        $preparedInputs[$this->inputMapping[$name][$v]] = 1;
                     }
+                }
+            } elseif (isset($this->inputMapping[$name])) {
+                if (is_array($this->inputMapping[$name]) && isset($this->inputMapping[$name][$input])) {
+                    $preparedInputs[$this->inputMapping[$name][$input]] = 1;
                 } else {
-                    if (is_array($this->input_mapping[$name])) {
-                        if (isset($this->input_mapping[$name][$input])) {
-                            $prepared_inputs[$this->input_mapping[$name][$input]] = 1;
-                        }
-                    } else {
-                        if (isset($this->input_mapping[$name])) {
-                            $prepared_inputs[$this->input_mapping[$name]] = $input === true || $input == 1 ? 1 : 0;
-                        }
-                    }
+                    $preparedInputs[$this->inputMapping[$name]] = intval($input === true);
                 }
             }
         }
 
-        if (isset($lesson['output'])) {
-            foreach ($lesson['output'] as $name => $output) {
-                if (is_array($output)) {
-                    foreach ($output as $v) {
-                        if (isset($this->output_mapping[$name][$v])) {
-                            $prepared_outputs[$this->output_mapping[$name][$v]] = 1;
-                        }
+        return $preparedInputs;
+    }
+
+    /**
+     * Prepares the outputs for a lesson
+     *
+     * @param array $lesson The lesson
+     * @return array The outputs
+     */
+    private function prepareLessonsOutput($lesson)
+    {
+        $preparedOutputs = $this->outputs;
+        foreach ($lesson['output'] as $name => $output) {
+            if (is_array($output)) {
+                foreach ($output as $v) {
+                    if (isset($this->outputMapping[$name][$v])) {
+                        $preparedOutputs[$this->outputMapping[$name][$v]] = 1;
                     }
+                }
+            } elseif (isset($this->outputMapping[$name])) {
+                if (is_array($this->outputMapping[$name]) && isset($this->outputMapping[$name][$output])) {
+                    $preparedOutputs[$this->outputMapping[$name][$output]] = 1;
                 } else {
-                    if (is_array($this->output_mapping[$name])) {
-                        if (isset($this->output_mapping[$name][$output])) {
-                            $prepared_outputs[$this->output_mapping[$name][$output]] = 1;
-                        }
-                    } else {
-                        if (isset($this->output_mapping[$name])) {
-                            $prepared_outputs[$this->output_mapping[$name]] = $output === true || $output == 1 ? 1 : 0;
-                        }
-                    }
+                    $preparedOutputs[$this->outputMapping[$name]] = intval($output === true);
                 }
             }
         }
-        return [$prepared_inputs, $prepared_outputs];
+        return $preparedOutputs;
     }
 }
