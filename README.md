@@ -19,7 +19,7 @@ composer require devtronic/legendary-mind
 ```php
 <?php
 
-use Devtronic\LegendaryMind\Activator\HTanActivator;
+use Devtronic\Layerless\Activator\TanHActivator;
 use Devtronic\LegendaryMind\Mind;
 
 require_once 'vendor/autoload.php';
@@ -28,7 +28,7 @@ require_once 'vendor/autoload.php';
 $topology = [2, 3, 1];
 
 // Set the activator
-$activator = new HTanActivator();
+$activator = new TanHActivator();
 
 // Instantiate the Mind
 $mind = new Mind($topology, $activator);
@@ -74,13 +74,13 @@ $mind->backPropagate($expected);
 ```php
 <?php
 
-use Devtronic\LegendaryMind\Activator\HTanActivator;
+use Devtronic\Layerless\Activator\TanHActivator;
 use Devtronic\LegendaryMind\Wrapper;
 
 require_once 'vendor/autoload.php';
 
 // Set the activator function
-$activator = new HTanActivator();
+$activator = new TanHActivator();
 
 $wrapper = new Wrapper($hiddenNeurons = 3, $hiddenLayers = 1);
 
@@ -156,13 +156,13 @@ $wrapper->backPropagate($test_lesson);
 ```php
 <?php
 
-use Devtronic\LegendaryMind\Activator\HTanActivator;
+use Devtronic\Layerless\Activator\TanHActivator;
 use Devtronic\LegendaryMind\Wrapper;
 
 require_once 'vendor/autoload.php';
 
 // Set the activation function
-$activator = new HTanActivator();
+$activator = new TanHActivator();
 $wrapper = new Wrapper($hiddenNeurons = 3, $hiddenLayers = 1);
 
 $network_file = 'network.txt';
