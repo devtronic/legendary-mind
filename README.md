@@ -14,6 +14,10 @@ Legendary Mind is an easy to use Neural Network written in PHP
 composer require devtronic/legendary-mind
 ```
 
+<a target='_blank' rel='nofollow' href='https://app.codesponsor.io/link/BMzHt4SSEgWb987FMzSqCXEm/Devtronic/legendary-mind'>
+  <img alt='Sponsor' width='888' height='68' src='https://app.codesponsor.io/embed/BMzHt4SSEgWb987FMzSqCXEm/Devtronic/legendary-mind.svg' />
+</a>
+
 ### Usage
 #### Standalone Network
 ```php
